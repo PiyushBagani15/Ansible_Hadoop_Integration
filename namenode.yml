@@ -1,0 +1,64 @@
+- hosts: namenode
+  vars_files: "NN_vars.yml"
+  tasks:
+  - name: 'Uploading Hadoop Software'
+    copy:
+      src: '/root/hadoop-1.2.1-1.x86_64.rpm'
+      dest: '/root/'
+
+  - name: 'Uploading JDK Software'
+    copy:
+      src: '/root/jdk-8u171-linux-x64.rpm'
+      dest: '/root/'
+
+  - name: 'checking jdk is installled or not' 
+    shell: 'java -version'
+    ignore_errors: yes
+    register: x
+ 
+
+  - name: 'Install The JDK software'
+    shell: "rpm -i /root/jdk-8u171-linux-x64.rpm"
+    when: x.rc != 0
+
+  - name: 'checking hadoop is installed or not'
+    shell: 'hadoop version'
+    ignore_errors: yes
+    register: y
+
+  - name: 'Installing hadoop'
+    shell: 'rpm -i /root/hadoop-1.2.1-1.x86_64.rpm --force'
+    when: y.rc != 0
+
+  - name: "making directory for namenode"
+    file:
+     state: directory
+     path: "{{ namenodefolder }}"
+
+  - name: 'copying hdfs file'
+    template:
+     src: "/root/hdfs-site.xml"
+     dest: "/etc/hadoop/hdfs-site.xml"
+
+
+  - name: 'copying core file'
+    template:
+     src: '/root/core-site.xml'
+     dest: 
+    
+
+  - name: 'formatting the directory'
+    shell: "echo Y | hadoop namenode -format"
+  - name: 'starting the namenode service'
+    shell: "hadoop-daemon.sh start namenode"
+  - name: 'checking the service is running or not'
+    shell: 'jps'
+    register: done
+
+  - debug:
+      var: done
+                        
+
+
+
+
