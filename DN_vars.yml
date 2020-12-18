@@ -1,0 +1,3 @@
+datanode_dir: '/dn'
+namenode_ip: '13.233.119.102'
+port_number: 9001
