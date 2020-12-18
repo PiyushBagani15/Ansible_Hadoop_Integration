@@ -1,2 +1,3 @@
 # Ansible_Hadoop_Integration
-In This Repository, How to setup Hadoop cluster using Ansible is shown.........
+Task Description📄
+Configure Hadoop and start cluster services using Ansible Playbook✨.
