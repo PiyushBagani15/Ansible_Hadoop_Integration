@@ -1,0 +1,55 @@
+- hosts: datanode
+  vars_files: 'DN_vars.yml'
+  tasks:
+  - name: 'Uploading Hadoop Software'
+    copy:
+      src: '/root/hadoop-1.2.1-1.x86_64.rpm'
+      dest: '/root/'
+  - name: 'uploading java software'
+    copy:
+      src: '/root/jdk-8u171-linux-x64.rpm'
+      dest: '/root/'
+
+  - name: 'Checking java is installed or not'
+    shell: 'java -version'
+    register: x
+    ignore_errors: yes
+
+  - name: 'Installing JDK'
+    shell: "rpm -i jdk-8u171-linux-x64.rpm"
+    when: x.rc == 127
+
+  - name: 'checking Hadoop is installed or not'
+    shell: 'hadoop version'
+    ignore_errors: yes
+    register: y
+
+  - name: 'Install Hadoop'
+    shell: ' rpm -i /root/hadoop-1.2.1-1.x86_64.rpm --force'
+    when:  y.rc != 0
+
+  - name: "making directory for the datanode"
+    file:
+      state: directory
+      path: "{{ datanode_dir }}"
+
+  - name: 'copying hdfs file'
+    template: 
+      src: "/root/DN_hdfs.xml"
+      dest: "/etc/hadoop/hdfs-site.xml"
+
+  - name: 'copying Core file'
+    template:
+      src: "/root/DN_core.xml"
+      dest: '/etc/hadoop/core-site.xml'
+
+  - name: 'starting the datanode service'
+    shell: 'hadoop-daemon.sh start datanode'
+
+  - name: 'Status check'
+    shell: 'jps'
+    register: done
+
+  - debug:
+       var: done
+
